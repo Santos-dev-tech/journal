@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trade Journal — Performance Dashboard</title>
+  <meta name="description" content="Track monthly trading performance including TPs, SLs, partial take profits, losses avoided and wins avoided." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Animated background orbs -->
+  <div class="bg-orbs">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo">
+        <span class="logo-icon">📈</span>
+        <div>
+          <h1 class="logo-title">Trade Journal</h1>
+          <p class="logo-sub">Performance Dashboard</p>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="god-mode-wrap">
+        <span class="god-label" id="godLabel">VIEW MODE</span>
+        <button class="god-toggle" id="godToggle" onclick="toggleGodMode()" title="Toggle God Mode">
+          <span class="god-icon">⚡</span>
+          <span class="toggle-track">
+            <span class="toggle-thumb" id="toggleThumb"></span>
+          </span>
+        </button>
+      </div>
+      <button class="btn-add-month" id="addMonthBtn" onclick="openAddMonth()" style="display:none">
+        + Add Month
+      </button>
+    </div>
+  </header>
+
+  <!-- Summary Bar -->
+  <section class="summary-bar">
+    <div class="stat-pill">
+      <span class="pill-label">Total Pips</span>
+      <span class="pill-value green" id="totalPips">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="pill-label">Win Rate</span>
+      <span class="pill-value blue" id="winRate">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="pill-label">Best Month</span>
+      <span class="pill-value gold" id="bestMonth">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="pill-label">Total Trades</span>
+      <span class="pill-value purple" id="totalTrades">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="pill-label">Losses Avoided</span>
+      <span class="pill-value teal" id="totalLA">—</span>
+    </div>
+    <div class="stat-pill">
+      <span class="pill-label">Wins Avoided</span>
+      <span class="pill-value red" id="totalWA">—</span>
+    </div>
+  </section>
+
+  <!-- Charts Row -->
+  <section class="charts-row">
+    <div class="chart-card">
+      <h3 class="chart-title">Monthly Pips</h3>
+      <div class="chart-wrap"><canvas id="pipsChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3 class="chart-title">TP vs SL per Month</h3>
+      <div class="chart-wrap"><canvas id="tpSlChart"></canvas></div>
+    </div>
+    <div class="chart-card pie-card">
+      <h3 class="chart-title">Trade Breakdown</h3>
+      <div class="chart-wrap"><canvas id="breakdownChart"></canvas></div>
+    </div>
+  </section>
+
+  <!-- Month Grid -->
+  <main class="month-grid" id="monthGrid"></main>
+
+  <!-- God Mode Add/Edit Modal -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Add Month</h2>
+        <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Month Name</label>
+            <input type="text" id="fMonth" placeholder="e.g. JAN" maxlength="10" />
+          </div>
+          <div class="form-group">
+            <label>Year</label>
+            <input type="number" id="fYear" placeholder="2025" min="2000" max="2100" />
+          </div>
+        </div>
+        <div class="form-row four-col">
+          <div class="form-group">
+            <label class="tp-label">TP (Take Profits)</label>
+            <input type="number" id="fTP" min="0" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="sl-label">SL (Stop Losses)</label>
+            <input type="number" id="fSL" min="0" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="ptp-label">PTP (Partial TP)</label>
+            <input type="number" id="fPTP" min="0" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="ptpa-label">PTPA (Partials Avoided)</label>
+            <input type="number" id="fPTPA" min="0" placeholder="0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="la-label">LA (Losses Avoided)</label>
+            <input type="number" id="fLA" min="0" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label class="wa-label">WA (Wins Avoided)</label>
+            <input type="number" id="fWA" min="0" placeholder="0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Result / Total Pips</label>
+            <input type="text" id="fResult" placeholder='e.g. 420 or "BE" for Break Even' />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group full">
+            <label>Notes</label>
+            <textarea id="fNotes" rows="2" placeholder="Optional notes about this month..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModalDirect()">Cancel</button>
+        <button class="btn-save" id="btnSave" onclick="saveMonth()">💾 Save Month</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirm Modal -->
+  <div class="modal-overlay" id="deleteOverlay" onclick="closeDeleteModal(event)">
+    <div class="modal small-modal" id="deleteModal">
+      <div class="modal-header">
+        <h2 class="modal-title">Delete Month?</h2>
+        <button class="modal-close" onclick="closeDeleteDirect()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="delete-msg">Are you sure you want to delete <strong id="deleteMonthName"></strong>? This cannot be undone.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeDeleteDirect()">Cancel</button>
+        <button class="btn-delete-confirm" onclick="confirmDelete()">🗑 Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
