@@ -4,45 +4,60 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #07090f;
-  --bg2:       #0d1120;
-  --glass:     rgba(255,255,255,0.04);
-  --glass-b:   rgba(255,255,255,0.08);
-  --border:    rgba(255,255,255,0.07);
-  --border-h:  rgba(255,255,255,0.15);
+  --bg:        #050508;
+  --bg2:       #0a0b12;
+  --glass:     rgba(255,255,255,0.02);
+  --glass-b:   rgba(255,255,255,0.04);
+  --border:    rgba(255,255,255,0.06);
+  --border-h:  rgba(255,255,255,0.12);
 
   --green:     #00e676;
   --green-dim: rgba(0,230,118,0.15);
   --red:       #ff5252;
   --red-dim:   rgba(255,82,82,0.15);
-  --blue:      #448aff;
-  --blue-dim:  rgba(68,138,255,0.15);
-  --gold:      #ffd740;
-  --gold-dim:  rgba(255,215,64,0.15);
-  --purple:    #ea80fc;
-  --purple-dim:rgba(234,128,252,0.15);
-  --teal:      #18ffff;
-  --teal-dim:  rgba(24,255,255,0.15);
-  --orange:    #ffab40;
-  --orange-dim:rgba(255,171,64,0.15);
+  --blue:      #2979ff;
+  --blue-dim:  rgba(41,121,255,0.15);
+  --gold:      #ffc400;
+  --gold-dim:  rgba(255,196,0,0.15);
+  --purple:    #e040fb;
+  --purple-dim:rgba(224,64,251,0.15);
+  --teal:      #00e5ff;
+  --teal-dim:  rgba(0,229,255,0.15);
+  --orange:    #ff9100;
+  --orange-dim:rgba(255,145,0,0.15);
 
-  --text:      #e8eaf6;
-  --text-sub:  #7986cb;
-  --text-dim:  #4a5080;
+  --text:      #f0f2f5;
+  --text-sub:  #8b949e;
+  --text-dim:  #4b5563;
 
   --tp-color:    #00e676;
   --sl-color:    #ff5252;
-  --ptp-color:   #ffd740;
-  --ptpa-color:  #ffab40;
-  --la-color:    #18ffff;
-  --wa-color:    #ea80fc;
+  --ptp-color:   #ffc400;
+  --ptpa-color:  #ff9100;
+  --la-color:    #00e5ff;
+  --wa-color:    #e040fb;
 
-  --radius:    14px;
-  --radius-sm: 8px;
-  --shadow:    0 8px 32px rgba(0,0,0,0.5);
-  --glow-green:0 0 20px rgba(0,230,118,0.25);
-  --glow-red:  0 0 20px rgba(255,82,82,0.25);
+  --radius:    16px;
+  --radius-sm: 10px;
+  --shadow:    0 12px 40px rgba(0,0,0,0.6);
+  --glow-green:0 0 24px rgba(0,230,118,0.25);
+  --glow-red:  0 0 24px rgba(255,82,82,0.25);
 }
+
+/* ── Global SVG Styles ─────────────────────────────────── */
+svg { vertical-align: middle; }
+.auth-input-icon { width: 18px; height: 18px; color: var(--text-sub); }
+.auth-eye svg { width: 18px; height: 18px; }
+.auth-logo-icon { width: 48px; height: 48px; margin-bottom: 12px; }
+.spin-icon { width: 18px; height: 18px; animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.logo-icon { width: 32px; height: 32px; }
+.god-icon { width: 14px; height: 14px; }
+.btn-add-month svg { width: 16px; height: 16px; margin-right: 6px; margin-top: -2px; }
+.btn-logout svg { width: 16px; height: 16px; margin-top: 2px; }
+.btn-edit-card svg, .btn-delete-card svg { width: 14px; height: 14px; margin-right: 4px; margin-top: -2px; }
+.btn-save svg, .btn-delete-confirm svg { width: 18px; height: 18px; margin-right: 6px; margin-top: -2px; }
 
 html { scroll-behavior: smooth; }
 
@@ -118,10 +133,11 @@ body.god-active .toggle-track { background: var(--gold); }
 body.god-active .toggle-thumb { transform: translateX(16px); }
 
 .btn-add-month {
-  background: linear-gradient(135deg,#448aff,#00e676);
-  border: none; border-radius: 8px;
-  padding: 8px 16px; font-size: 0.82rem; font-weight: 700;
-  color: #07090f; cursor: pointer; transition: opacity 0.2s, transform 0.2s;
+  display: flex; align-items: center;
+  background: linear-gradient(135deg,#2979ff,#00e676);
+  border: none; border-radius: var(--radius-sm);
+  padding: 8px 18px; font-size: 0.85rem; font-weight: 700;
+  color: #000; cursor: pointer; transition: opacity 0.2s, transform 0.2s;
 }
 .btn-add-month:hover { opacity: 0.85; transform: translateY(-1px); }
 
@@ -172,6 +188,22 @@ body.god-active .toggle-thumb { transform: translateX(16px); }
 
 .chart-title { font-size: 0.8rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
 .chart-wrap { position: relative; height: 180px; }
+
+/* ── Empty State ───────────────────────────────────────── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 40px 32px;
+  backdrop-filter: blur(12px);
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.empty-icon { width: 64px; height: 64px; color: var(--text-dim); margin-bottom: 24px; }
+.empty-state h2 { font-size: 1.8rem; color: var(--text); margin-bottom: 12px; font-weight: 800; letter-spacing: -0.5px; }
+.empty-state p { font-size: 1.05rem; color: var(--text-sub); max-width: 440px; line-height: 1.6; }
 
 /* ── Month Grid ────────────────────────────────────────── */
 .month-grid {

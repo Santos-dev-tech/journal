@@ -3,38 +3,7 @@
    ============================================================ */
 
 // ── Initial seed data (parsed from user input) ──────────────
-const SEED_DATA = [
-  {
-    id: 'jan-2025', month: 'JAN', year: 2025,
-    TP: 2, SL: 6, PTP: 0, PTPA: 0, LA: 7, WA: 1,
-    result: 'BE', notes: ''
-  },
-  {
-    id: 'feb-2025', month: 'FEB', year: 2025,
-    TP: 7, SL: 4, PTP: 0, PTPA: 1, LA: 5, WA: 0,
-    result: 510, notes: ''
-  },
-  {
-    id: 'mar-2025', month: 'MAR', year: 2025,
-    TP: 5, SL: 1, PTP: 0, PTPA: 0, LA: 7, WA: 1,
-    result: 420, notes: ''
-  },
-  {
-    id: 'apr-2025', month: 'APR', year: 2025,
-    TP: 4, SL: 2, PTP: 1, PTPA: 0, LA: 2, WA: 1,
-    result: 312, notes: ''
-  },
-  {
-    id: 'nov-2025', month: 'NOV', year: 2025,
-    TP: 2, SL: 9, PTP: 1, PTPA: 0, LA: 4, WA: 4,
-    result: null, notes: ''
-  },
-  {
-    id: 'dec-2025', month: 'DEC', year: 2025,
-    TP: 5, SL: 7, PTP: 0, PTPA: 1, LA: 4, WA: 2,
-    result: null, notes: ''
-  }
-];
+const SEED_DATA = [];
 
 // ── Month order for sorting ─────────────────────────────────
 const MONTH_ORDER = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
@@ -153,8 +122,13 @@ function renderCards() {
 
     card.innerHTML = `
       <div class="card-actions">
-        <button class="btn-edit-card" onclick="openEditMonth('${m.id}')">✏️ Edit</button>
-        <button class="btn-delete-card" onclick="openDeleteModal('${m.id}')">🗑</button>
+        <button class="btn-edit-card" onclick="openEditMonth('${m.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+          Edit
+        </button>
+        <button class="btn-delete-card" onclick="openDeleteModal('${m.id}')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+        </button>
       </div>
       <div class="card-header">
         <div>
@@ -391,14 +365,21 @@ function updateCharts() {
 function render() {
   calcSummary();
   renderCards();
-  updateCharts();
+  
+  if (DATA.length === 0) {
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('dashboardContent').style.display = 'none';
+  } else {
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('dashboardContent').style.display = 'block';
+    updateCharts();
+  }
 }
 
 // ── Modal: Add month ─────────────────────────────────────────
 function openAddMonth() {
   editingId = null;
-  document.getElementById('modalTitle').textContent = '➕ Add Month';
-  document.getElementById('btnSave').textContent = '💾 Save Month';
+  document.getElementById('modalTitle').textContent = 'Add Month';
   clearForm();
   openModal('modalOverlay');
 }
@@ -410,8 +391,7 @@ function openEditMonth(id) {
   const m = DATA.find(x => x.id === id);
   if (!m) return;
 
-  document.getElementById('modalTitle').textContent = `✏️ Edit — ${m.month.toUpperCase()} ${m.year || ''}`;
-  document.getElementById('btnSave').textContent = '💾 Update Month';
+  document.getElementById('modalTitle').textContent = `Edit — ${m.month.toUpperCase()} ${m.year || ''}`;
   document.getElementById('fMonth').value  = m.month || '';
   document.getElementById('fYear').value   = m.year  || '';
   document.getElementById('fTP').value     = m.TP    ?? '';
