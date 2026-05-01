@@ -47,7 +47,7 @@ let deletingId = null;
 let pipsChart, tpSlChart, breakdownChart;
 
 // ── LocalStorage helpers ────────────────────────────────────
-const STORAGE_KEY = 'trade_journal_v2';
+let STORAGE_KEY = 'trade_journal_v2';
 
 function loadData() {
   try {
@@ -254,6 +254,10 @@ const CHART_DEFAULTS = {
 };
 
 function initCharts() {
+  if (pipsChart) pipsChart.destroy();
+  if (tpSlChart) tpSlChart.destroy();
+  if (breakdownChart) breakdownChart.destroy();
+
   const months = sortedData();
   const labels = months.map(m => `${m.month.toUpperCase()}'${String(m.year||'').slice(-2)}`);
 
@@ -512,10 +516,127 @@ document.addEventListener('keydown', e => {
   }
 });
 
+// ── Auth UI Handlers ─────────────────────────────────────────
+async function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPassword').value;
+  const msg = document.getElementById('authMsg');
+  const btn = document.getElementById('loginBtn');
+  const text = btn.querySelector('.auth-btn-text');
+  const spin = btn.querySelector('.auth-btn-spinner');
+  
+  try {
+    msg.style.display = 'none';
+    text.style.display = 'none';
+    spin.style.display = 'inline-block';
+    
+    await window.TJAuth.login(email, pass);
+    checkAuth();
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.style.display = 'block';
+    msg.style.color = '#ff5252';
+  } finally {
+    text.style.display = 'inline-block';
+    spin.style.display = 'none';
+  }
+}
+
+async function handleRegister(e) {
+  e.preventDefault();
+  const name = document.getElementById('regName').value;
+  const email = document.getElementById('regEmail').value;
+  const pass = document.getElementById('regPassword').value;
+  const conf = document.getElementById('regConfirm').value;
+  const msg = document.getElementById('authMsg');
+  const btn = document.getElementById('registerBtn');
+  const text = btn.querySelector('.auth-btn-text');
+  const spin = btn.querySelector('.auth-btn-spinner');
+  
+  if (pass !== conf) {
+    msg.textContent = 'Passwords do not match.';
+    msg.style.display = 'block';
+    msg.style.color = '#ff5252';
+    return;
+  }
+
+  try {
+    msg.style.display = 'none';
+    text.style.display = 'none';
+    spin.style.display = 'inline-block';
+    
+    await window.TJAuth.register(email, name, pass);
+    checkAuth();
+  } catch (err) {
+    msg.textContent = err.message;
+    msg.style.display = 'block';
+    msg.style.color = '#ff5252';
+  } finally {
+    text.style.display = 'inline-block';
+    spin.style.display = 'none';
+  }
+}
+
+function switchTab(tab) {
+  document.getElementById('authMsg').style.display = 'none';
+  if (tab === 'login') {
+    document.getElementById('loginForm').style.display = 'flex';
+    document.getElementById('registerForm').style.display = 'none';
+    document.getElementById('tabLogin').classList.add('active');
+    document.getElementById('tabRegister').classList.remove('active');
+  } else {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'flex';
+    document.getElementById('tabRegister').classList.add('active');
+    document.getElementById('tabLogin').classList.remove('active');
+  }
+}
+
+function togglePwd(id, btn) {
+  const input = document.getElementById(id);
+  if (input.type === 'password') {
+    input.type = 'text';
+    btn.style.opacity = '1';
+  } else {
+    input.type = 'password';
+    btn.style.opacity = '0.5';
+  }
+}
+
+function handleLogout() {
+  window.TJAuth.clearSession();
+  DATA = [];
+  document.getElementById('authOverlay').style.display = 'flex';
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('regName').value = '';
+  document.getElementById('regEmail').value = '';
+  document.getElementById('regPassword').value = '';
+  document.getElementById('regConfirm').value = '';
+  switchTab('login');
+}
+
+function checkAuth() {
+  const session = window.TJAuth.getSession();
+  if (session) {
+    document.getElementById('authOverlay').style.display = 'none';
+    document.getElementById('appShell').style.display = 'block';
+    STORAGE_KEY = window.TJAuth.userStorageKey(session.email);
+    document.getElementById('userName').textContent = session.displayName;
+    document.getElementById('userAvatar').textContent = session.displayName.charAt(0).toUpperCase();
+    loadData();
+    calcSummary();
+    renderCards();
+    initCharts();
+  } else {
+    document.getElementById('authOverlay').style.display = 'flex';
+    document.getElementById('appShell').style.display = 'none';
+  }
+}
+
 // ── Bootstrap ───────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
-  loadData();
-  calcSummary();
-  renderCards();
-  initCharts();
+  checkAuth();
 });
